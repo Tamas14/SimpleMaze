@@ -4,11 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -26,7 +25,7 @@ import javax.swing.text.StyleConstants;
 import hu.unimiskolc.game.SimpleMaze;
 import hu.unimiskolc.object.Player.Direction;
 
-public class Console extends JFrame implements KeyListener, MouseListener
+public class Console extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
@@ -42,18 +41,56 @@ public class Console extends JFrame implements KeyListener, MouseListener
 		setTitle("Simple Maze");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
-		addKeyListener(this);
+		addKeyListener(new KeyAdapter()
+		{
+			@Override
+			public void keyPressed(KeyEvent e)
+			{
+				switch (e.getKeyCode())
+				{
+					case 'W':
+					{
+						SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.UP);
+						break;
+					}
+					case 'A':
+					{
+						SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.LEFT);
+						break;
+					}
+					case 'S':
+					{
+						SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.DOWN);
+						break;
+					}
+					case 'D':
+					{
+						SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.RIGHT);
+						break;
+					}
+				}
+
+				update();
+			}
+		});
 
 		lines = new String[rows];
 
 		console = new JTextArea(rows, columns);
 
-		console.setForeground(new Color(89, 177, 226));
-		console.setBackground(new Color(28, 31, 34));
+		console.setForeground(new Color(68, 161, 160));
+		console.setBackground(new Color(25, 30, 40));
 		console.setLineWrap(true);
 		console.setEditable(false);
 
-		console.addMouseListener(this);
+		console.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				getFocus();
+			}
+		});
 
 		update();
 
@@ -83,7 +120,6 @@ public class Console extends JFrame implements KeyListener, MouseListener
 
 	public void setLine(String str, int pos)
 	{
-		// TODO: Throw exception
 		if (pos < 0 || pos > rows)
 		{
 			return;
@@ -94,7 +130,6 @@ public class Console extends JFrame implements KeyListener, MouseListener
 
 	public void setLine(String str, int pos, boolean update)
 	{
-		// TODO: Throw exception
 		if (pos < 0 || pos > rows)
 		{
 			return;
@@ -206,42 +241,6 @@ public class Console extends JFrame implements KeyListener, MouseListener
 		});
 	}
 
-	@Override
-	public void keyPressed(KeyEvent e)
-	{
-		switch (e.getKeyCode())
-		{
-			case 'W':
-			{
-				SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.UP);
-				break;
-			}
-			case 'A':
-			{
-				SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.LEFT);
-				break;
-			}
-			case 'S':
-			{
-				SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.DOWN);
-				break;
-			}
-			case 'D':
-			{
-				SimpleMaze.getPlayer().move(SimpleMaze.getGs(), Direction.RIGHT);
-				break;
-			}
-		}
-
-		update();
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e)
-	{
-		getFocus();
-	}
-
 	public int getColumns()
 	{
 		return columns;
@@ -250,36 +249,6 @@ public class Console extends JFrame implements KeyListener, MouseListener
 	public int getRows()
 	{
 		return rows;
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e)
-	{
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e)
-	{
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e)
-	{
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e)
-	{
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e)
-	{
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e)
-	{
 	}
 
 }

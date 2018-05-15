@@ -1,8 +1,14 @@
 package hu.unimiskolc.game;
 
-import hu.unimiskolc.generator.Generator;
-import hu.unimiskolc.generator.Maze;
-import hu.unimiskolc.generator.Maze.MazeData;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.text.BadLocationException;
+
+import hu.unimiskolc.maze.Generator;
+import hu.unimiskolc.maze.Solver;
+import hu.unimiskolc.maze.Solver.MazeData;
 import hu.unimiskolc.object.EndPoint;
 import hu.unimiskolc.object.Path;
 import hu.unimiskolc.object.Player;
@@ -11,6 +17,8 @@ import hu.unimiskolc.object.Wall;
 import hu.unimiskolc.screen.Console;
 import hu.unimiskolc.screen.GameScreen;
 import hu.unimiskolc.screen.Stats;
+import hu.unimiskolc.screen.Stats.StatData;
+import hu.unimiskolc.test.Test;
 
 public class SimpleMaze
 {
@@ -30,11 +38,6 @@ public class SimpleMaze
 	private static StartPoint startPoint;
 	private static EndPoint endPoint;
 
-	// public SimpleMaze()
-	// {
-	// init();
-	// }
-
 	public static void init()
 	{
 		gameRunning = true;
@@ -52,7 +55,7 @@ public class SimpleMaze
 		int[][] mazeArray;
 		MazeData mazeData;
 
-		Maze maze = new Maze();
+		Solver maze = new Solver();
 
 		do
 		{
@@ -61,9 +64,10 @@ public class SimpleMaze
 
 		startPoint = new StartPoint(mazeData.getStart().x, mazeData.getStart().y);
 		minMoves = mazeData.getMinSteps();
-		// For testing
-		// startPoint = new StartPoint(mazeData.getEnd().x - 2, mazeData.getEnd().y -
-		// 2);
+
+		if (Test.START_CLOSE)
+			startPoint = new StartPoint(mazeData.getEnd().x - 2, mazeData.getEnd().y - 2);
+
 		endPoint = new EndPoint(mazeData.getEnd().x, mazeData.getEnd().y);
 
 		path = new Path();
@@ -79,32 +83,34 @@ public class SimpleMaze
 			}
 		}
 
-		// maze.testMaze(mazeArray);
+		if (Test.TESTING_MODE)
+			maze.testMaze(mazeArray);
 
-		Thread t = new Thread(new Runnable()
+		ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		executor.scheduleAtFixedRate(new Runnable()
 		{
+
 			@Override
 			public void run()
 			{
-				while (gameRunning)
+				if (!gameRunning)
 				{
+					executor.shutdown();
+					StatData data = Stats.calcStats();
+
 					try
 					{
-						con.setLine("Time: " + ellapsedTime, 0, true);
-						Thread.sleep(1000);
-					} catch (InterruptedException e)
+						con.printStats(data.getEllapsedTime(), data.getSteps(), data.getStepDiff(), data.getSpeed());
+					} catch (BadLocationException e)
 					{
 						e.printStackTrace();
 					}
-
-					ellapsedTime++;
 				}
-
-				new Stats();
+				con.setLine("Time: " + ellapsedTime, 0, true);
+				ellapsedTime++;
 			}
-		});
 
-		t.start();
+		}, 0, 1, TimeUnit.SECONDS);
 
 		player = new Player();
 		gs.setObject(startPoint, startPoint.getX(), startPoint.getY());

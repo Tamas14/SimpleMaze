@@ -1,21 +1,47 @@
 package hu.unimiskolc.screen;
 
-import javax.swing.text.BadLocationException;
-
 import hu.unimiskolc.game.SimpleMaze;
 
 public class Stats
 {
-	Console con;
-
-	public Stats()
+	public static class StatData
 	{
-		con = SimpleMaze.getCon();
+		int ellapsedTime;
+		int steps;
+		int stepDiff;
+		double speed;
 
-		calcStats();
+		public StatData(int ellapsedTime, int steps, int stepDiff, double speed)
+		{
+			this.ellapsedTime = ellapsedTime;
+			this.steps = steps;
+			this.stepDiff = stepDiff;
+			this.speed = speed;
+		}
+
+		public int getEllapsedTime()
+		{
+			return ellapsedTime;
+		}
+
+		public int getSteps()
+		{
+			return steps;
+		}
+
+		public int getStepDiff()
+		{
+			return stepDiff;
+		}
+
+		public double getSpeed()
+		{
+			return speed;
+		}
+
 	}
 
-	public void calcStats()
+	public static StatData calcStats()
 	{
 		int ellapsedTime = SimpleMaze.getEllapsedTime();
 		int steps = SimpleMaze.getTotalMoves();
@@ -24,13 +50,7 @@ public class Stats
 		int stepDiff = steps - minSteps;
 		double speed = steps / (double) ellapsedTime;
 
-		try
-		{
-			con.printStats(ellapsedTime, steps, stepDiff, speed);
-		} catch (BadLocationException e)
-		{
-			e.printStackTrace();
-		}
+		return new StatData(ellapsedTime, minSteps, stepDiff, speed);
 	}
 
 }
